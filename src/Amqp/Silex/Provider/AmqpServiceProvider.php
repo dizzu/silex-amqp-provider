@@ -3,7 +3,8 @@
 namespace Amqp\Silex\Provider;
 
 use Silex\Application;
-use Silex\ServiceProviderInterface;
+use Pimple\ServiceProviderInterface;
+use Pimple\Container;
 
 class AmqpServiceProvider implements ServiceProviderInterface
 {
@@ -19,9 +20,9 @@ class AmqpServiceProvider implements ServiceProviderInterface
      *
      * @param Application $app An Application instance
      */
-    public function register(Application $app)
+    public function register(Container $pimple)
     {
-        $app[self::AMQP_CONNECTIONS] = array(
+        $pimple[self::AMQP_CONNECTIONS] = array(
             'default' => array(
                 'host' => 'localhost',
                 'port' => 5672,
@@ -31,13 +32,13 @@ class AmqpServiceProvider implements ServiceProviderInterface
             )
         );
 
-        $app[self::AMQP_FACTORY] = $app->protect(function ($host = 'localhost', $port = 5672, $username = 'guest', $password = 'guest', $vhost = '/') use ($app) {
-            return $app[self::AMQP]->createConnection($host, $port, $username, $password, $vhost);
-        });
+        $pimple[self::AMQP_FACTORY] = function ($host = 'localhost', $port = 5672, $username = 'guest', $password = 'guest', $vhost = '/') use ($pimple) {
+            return $pimple[self::AMQP]->createConnection($host, $port, $username, $password, $vhost);
+        };
 
-        $app[self::AMQP] = $app->share(function () use ($app) {
-            return new AmqpConnectionProvider($app[self::AMQP_CONNECTIONS]);
-        });
+        $pimple[self::AMQP] = function () use ($pimple) {
+            return new AmqpConnectionProvider($pimple[self::AMQP_CONNECTIONS]);
+        };
     }
 
     /**

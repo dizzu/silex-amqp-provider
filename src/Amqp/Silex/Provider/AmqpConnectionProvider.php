@@ -2,9 +2,9 @@
 
 namespace Amqp\Silex\Provider;
 
-use PhpAmqpLib\Connection\AMQPConnection;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 
-class AmqpConnectionProvider extends \Pimple
+class AmqpConnectionProvider extends \Pimple\Container
 {
     /**
      * @param array $options
@@ -13,9 +13,9 @@ class AmqpConnectionProvider extends \Pimple
     {
         $provider = $this;
         foreach ($options as $key => $connection) {
-            $this['default'] = $this->share(function () use ($connection, $provider) {
+            $this['default'] = function () use ($connection, $provider) {
                 return $provider->createConnection($connection['host'], $connection['port'], $connection['username'], $connection['password'], $connection['vhost']);
-            });
+            };
         }
     }
 
@@ -29,6 +29,6 @@ class AmqpConnectionProvider extends \Pimple
      */
     public function createConnection($host = 'localhost', $port = 5672, $username = 'guest', $password = 'guest', $vhost = '/')
     {
-        return new AMQPConnection($host, $port, $username, $password, $vhost);
+        return new AMQPStreamConnection($host, $port, $username, $password, $vhost);
     }
 }
