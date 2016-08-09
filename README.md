@@ -10,7 +10,7 @@ Add in your ```composer.json``` the require entry for this library.
 ```json
 {
     "require": {
-        "ebichan/silex-amqp-provider": "dev-master"
+        "dizzu/silex-amqp-provider": "dev-master"
     }
 }
 ```
